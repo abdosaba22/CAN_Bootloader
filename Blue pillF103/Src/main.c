@@ -79,7 +79,7 @@ int main()
 	{
 		if(BL_u8Timeout)
 		{
-			BL_voidRestore();
+			Jump_APP();
 		}
 		else
 		{
