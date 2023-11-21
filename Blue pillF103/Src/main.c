@@ -9,8 +9,6 @@
 #include <MSTK_interface.h>
 #include <MFPEC_interface.h>
 #include <MUART_interface.h>
-#include <MI2C_interface.h>
-#include <HNVM_interface.h>
 
 
 void CAN_TX(u8* ARG_pu8BaseAddress, u8 ARG_u8DLCValue );
@@ -23,15 +21,6 @@ void Parser_voidParseRecord(u8* Copy_u8BufData);
 void BL_voidTimeout(void);
 void Jump_APP(void);
 
-//void BL_voidBackup(void);
-//void BL_voidRestore(void);
-
-/*Backup Variables*/
-u8 lastPageFlag = 0;
-u8 backupPageCount = 0;
-u8 burstDataWrite[1024] = {0};
-u8 burstDataRead[1024] = {0};
-char debugData[100]={0};
 
 /*CAN Messages*/
 u8 gEndDATA[6]={"done*"};
@@ -80,25 +69,25 @@ int main()
 	CAN_voidStart();
 
 	volatile u8  L_u8Terminator = 0;
-//	u8 L_u8PinState = 0;
+	u8 L_u8PinState = 0;
 
 	/*Start SysTick and Wait for a timeout 10s */
-//	MSTK_stderrStartSingle(10000000, BL_voidTimeout);
+	MSTK_stderrStartSingle(10000000, BL_voidTimeout);
 
-//	/*Poll Pin*/
-//	while(!L_u8PinState)
-//	{
-//		if(BL_u8Timeout)
-//		{
-//			BL_voidRestore();
-//		}
-//		else
-//		{
-//			MGPIO_stderrGetPinState(&L_u8PinState, MGPIO_PIN_A7);
-//		}
-//
-//	}
-//	L_u8PinState = 0;
+	/*Poll Pin*/
+	while(!L_u8PinState)
+	{
+		if(BL_u8Timeout)
+		{
+			BL_voidRestore();
+		}
+		else
+		{
+			MGPIO_stderrGetPinState(&L_u8PinState, MGPIO_PIN_A7);
+		}
+
+	}
+	L_u8PinState = 0;
 	/*Erase App Area*/
 	MFPEC_voidEraseAppArea();
 
@@ -111,8 +100,6 @@ int main()
 		/* polling for new reord*/
 		L_u8Terminator=CAN_RX();
 		MSTK_voidBusyWait(1);
-		/* Send message to like ACK */
-//		CAN_TX(gTXDATA,3);
 		/* in case CAN_RX return 2 means that code finished */
 		if(L_u8Terminator==2 )
 		{
@@ -121,15 +108,17 @@ int main()
 			/* jump to new APP */
 			Jump_APP();
 		}
-//		if(calculate_checksum(gDATA))  /* check if the checksum is correct to check for can bus integrity */
-//		{
+		if(calculate_checksum(gDATA))  /* check if the checksum is correct to check for can bus integrity */
+		{
 			Parser_voidParseRecord(gDATA); /* parse code after receive it */
+			/* Send message like ACK */
 			CAN_TX(gTXDATA,3); /* send OK to receive the next record */
-//		}
-//		else
-//		{
-//			/* do nothing */
-//		}
+		}
+		else
+		{
+			/* Send message like NACK to resend the record */
+			
+		}
 	}
 	return 0;
 }
@@ -238,70 +227,7 @@ void Jump_APP(void)
 }
 
 
-//void BL_voidBackup(void)
-//{
-//
-//	/*Backup process*/
-//	/*16 is number of pages to be backed up (TODO #define)*/
-//	while(backupPageCount<16)
-//	{
-//		/*Read From Flash Page by Page until a known delimiter is found*/
-//		for(int i =0; i<1024; i++)
-//		{
-//			burstDataWrite[i] = *((u8 *)(0x08004000+i+(backupPageCount*1024))) /*Replace (i) with byte read from flash*/;
-//		}
-//
-//		/*Write the read page from the flash to EEPROM*/
-//		for(int i =0; i<1024; i+=64)
-//		{
-//			HNVM_stderrBurstWrite(i+(backupPageCount*1024), &burstDataWrite[i&960], 64);
-//			MSTK_voidBusyWait(5000);
-//		}
-//
-//		backupPageCount++;
-//	}
-//
-//	/*Save the number of pages in a location to be known in this case 0x200FF*/
-//	HNVM_voidWriteByte(0x200FF, backupPageCount);
-//	MSTK_voidBusyWait(5000);
-//
-//}
-
-
-//void BL_voidRestore(void)
-//{
-//	/*Restore From Backup Process*/
-//	/*Read the number of pages saved during last backup*/
-//	backupPageCount = HNVM_u8ReadByte(0x200FF);
-//
-//	/*Erase App Area*/
-//	MFPEC_voidEraseAppArea();
-//
-//	/*Restore From Backup*/
-//	for(int i =0; i<backupPageCount; i++)
-//	{
-//		/*Read a page from EEPROM*/
-//		HNVM_stderrBurstRead(i*1024 , burstDataRead, 1024);
-//
-//		/*Write the page into flash using FPEC inside a loop*/
-//		MFPEC_voidFlashWrite(((u32)(APP_BaseAddress+ (i*1024))) ,(u16*)(&burstDataRead[0]),512);
-//
-//
-//		//		/*Debugging Only*/
-//		//		sprintf(debugData, "Start Address: 0x%X\n",i);
-//		//		MUART_voidSendString(MUART_UART2, debugData);
-//		//
-//		//		for(int j = 0; j<1024; j++)
-//		//		{
-//		//			sprintf(debugData, "Address: 0x%X\tData: 0x%X\n",i+j , burstDataRead[j]);
-//		//			MUART_voidSendString(MUART_UART2, debugData);
-//		//		}
-//	}
-//
-//	Jump_APP();
-//}
-
-//void BL_voidTimeout(void)
-//{
-//	BL_u8Timeout = 1;
-//}
+void BL_voidTimeout(void)
+{
+	BL_u8Timeout = 1;
+}
