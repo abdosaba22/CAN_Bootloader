@@ -2,7 +2,7 @@
 /* Author      	:	 Abd-alrahman Amin						*/
 /* SWC         	:	 Flash Program and erase controller		*/
 /* Layer       	:	 MCAL              						*/
-/* MCu     		:	 stm32f401         						*/
+/* MCu     		:	 Stm32F446RE       						*/
 /* Version     	:	 1.0               						*/
 /* Date        	:	 October 4, 2023						*/
 /* Last Edit   	:	 N/A 									*/

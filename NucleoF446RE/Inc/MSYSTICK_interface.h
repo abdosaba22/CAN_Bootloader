@@ -1,7 +1,7 @@
 /* **************************************************** */
 /* Author      	:	 Abd-alrahman Amin					*/
 /* SWC         	:	 SysTick							*/
-/* MCu         	:	 Stm32F401CCU6						*/
+/* MCu         	:	 Stm32F446RE						*/
 /* Layer       	:	 MCAL              					*/
 /* Version     	:	 1.1               					*/
 /* Date        	:	 September 19, 2023					*/

@@ -1,7 +1,7 @@
 /* ************************************************ */
 /* Author      : Abd-alrahman Amin                  */
 /* SWC         : Reset & Clock Control	            */
-/* MCu         : Stm32F401CCU6		                */
+/* MCu         : Stm32F446RE		                */
 /* Layer       : MCAL                               */
 /* Version     : 1.0                                */
 /* Date        : September 12, 2023                 */
