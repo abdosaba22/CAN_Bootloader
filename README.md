@@ -12,11 +12,13 @@ This Repo includes CAN Bootloader App For STM32F446RE and STM32F103C8T6, the App
 
 5- SYSTICK driver. 
 
-6- Parser
+6- hex Parser.
 
 7- Flash driver.
 
-8- LCD driver.
+8- NVIC driver.
+
+9- LCD driver.
 
 implemented for both NucleoF446RE and STM32F103 Blue Pill.
 
